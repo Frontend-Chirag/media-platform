@@ -12,13 +12,13 @@ export async function sendMail({ email, emailType, forgotPasswordToken, verifica
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'anujkashyap123000@gmail.com',
-        pass: 'yfdixddsunvfmfbx',
+        user: process.env.MAILER_EMAIL,
+        pass: process.env.MAILER_PASSWORD,
       }
     });
 
     const mailtrapOptions = {
-      from: 'anujkashyap123000@gmail.com',
+      from: process.env.MAILER_EMAIL,
       to: email,
       subject: `${emailType === 'verify' ? 'Verify your email' : 'Reset your password'}`,
       html: `

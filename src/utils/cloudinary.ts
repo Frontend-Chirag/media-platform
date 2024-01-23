@@ -3,9 +3,9 @@ import fs from 'fs';
 
 // Configure cloudinary
 cloudinary.config({
-    cloud_name: 'di7sjizcl',
-    api_key: '577853343312115',
-    api_secret: 'sQ13wVGSpHatZhhM4TCYZF7hDQc'
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 // Upload file to cloudinary
