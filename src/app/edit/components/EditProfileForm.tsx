@@ -30,10 +30,10 @@ const EditProfileForm = () => {
     const [imagePath, setImagePath] = useState<File | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
-        // Set the inputRef to the DOM element with the id 'profilePicture'
-        inputRef.current = document.getElementById('profilePicture') as HTMLInputElement | null;
-    }, []);
+    // useEffect(() => {
+    //     // Set the inputRef to the DOM element with the id 'profilePicture'
+    //     inputRef.current = document.getElementById('profilePicture') as HTMLInputElement | null;
+    // }, []);
 
 
     useEffect(() => {
@@ -75,11 +75,10 @@ const EditProfileForm = () => {
 
     useEffect(() => {
         // Handle gender change
-        if (editGender !== gender && !customGender) {
+        if (gender !== undefined && editGender !== gender && !customGender) {
             handleEditGender();
         }
     }, [editGender]);
-
 
     const handleEditGender = async () => {
         try {
@@ -119,6 +118,7 @@ const EditProfileForm = () => {
                         onChange={(e) => {
                             setImagePath(e.target.files ? e.target?.files?.[0] : null)
                         }}
+                        ref={inputRef}
                     />
                     <div className='w-[100px] h-[100px] relative '>
                         <Image
@@ -141,8 +141,8 @@ const EditProfileForm = () => {
                 <h1 className='font-bold text-md'>Name</h1>
                 <input
                     id='name'
-                    value={name}
-                    onClick={() => { setValue('name'), onOpenNameAndUsername() }}
+                    defaultValue={name}
+                    onClick={() => { setValue('name'); onOpenNameAndUsername() }}
                     className='w-full h-[34px] dark:border-b-[1px] dark:border-b-neutral-600 rounded-lg dark:rounded-none bg-gray-200 dark:bg-black outline-none p-2'
                 />
             </div>
@@ -150,8 +150,8 @@ const EditProfileForm = () => {
                 <h1 className='font-bold text-md'>Username</h1>
                 <input
                     id='username'
-                    value={username}
-                    onClick={() => { setValue('username'), onOpenNameAndUsername() }}
+                    defaultValue={username}
+                    onClick={() => { setValue('username'); onOpenNameAndUsername() }}
                     className='w-full h-[34px]  dark:border-b-[1px] dark:border-b-neutral-600 rounded-lg dark:rounded-none bg-gray-200 dark:bg-black outline-none p-2'
                 />
             </div>
@@ -159,8 +159,11 @@ const EditProfileForm = () => {
                 <h1 className='font-bold text-md'>Bio</h1>
                 <input
                     id='bio'
-                    value={bio}
-                    onClick={() => { setValue('bio'), onOpenNameAndUsername() }}
+                    defaultValue={bio}
+                    onClick={() => {
+                        setValue('bio');
+                        onOpenNameAndUsername()
+                    }}
                     className='w-full h-[50px] p-2  custom-scrollbar rounded-2xl resize-none
                     dark:border-b-[1px] dark:border-b-neutral-600 dark:rounded-none dark:text-[#fff] text-[#000] bg-gray-200 dark:bg-black text-md outline-none'
 
@@ -207,7 +210,7 @@ const EditProfileForm = () => {
                     </div>
                     <div className='w-full h-[100px] cursor-pointer flex flex-col justify-between items-start px-4 py-2 hover:bg-gray-200 dark:hover:bg-neutral-800'>
                         <div
-                            onClick={() => { setEditGender(''), setIsOpen(false) }}
+                            onClick={() => { setEditGender(''); setIsOpen(false) }}
                             className='w-full flex justify-between items-center'>
                             <p>Custom</p>
                             {editGender === ''
