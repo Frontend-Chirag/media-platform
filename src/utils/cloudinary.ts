@@ -1,3 +1,4 @@
+import { ImageType } from '@/components/ModelProvider';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 
@@ -12,13 +13,12 @@ cloudinary.config({
 export const uploadOnCloudinary = async (LocalFilePath: string) => {
     try {
         if (!LocalFilePath) return null;
-
+       console.log('file path',LocalFilePath)
         // Upload file to cloudinary
         const response = await cloudinary.uploader.upload(LocalFilePath, {
             resource_type: 'auto'
         });
         // file has been uploaded successfully
-        console.log('File uploaded successfully', response.url);
         fs.unlinkSync(LocalFilePath); // remove the locally saved temporary file after upload
         return response.url
     } catch (error) {
@@ -28,3 +28,5 @@ export const uploadOnCloudinary = async (LocalFilePath: string) => {
         return null
     }
 }
+
+// upload multiple file on cloudiary 

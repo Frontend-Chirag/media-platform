@@ -42,6 +42,8 @@ export default async function handler(request: NextApiRequest, res: NextApiRespo
                 { new: true }
             ).select('-password -refreshToken -email');
 
+
+
             // Delete the follow request notification
             await Notification.deleteOne({
                 userFrom: updatedSenderUser._id,
@@ -63,6 +65,7 @@ export default async function handler(request: NextApiRequest, res: NextApiRespo
             });
 
             console.log('Follow Request canceled');
+            return res.status(200).json({ message: 'Follow Request canceled Successfully' , updatedReceiverUser, updatedSenderUser});
         } else {
             // If a follow request has not been sent, send one
 
@@ -76,6 +79,7 @@ export default async function handler(request: NextApiRequest, res: NextApiRespo
             });
 
             // Add the follow request to the receiver's friendRequests field
+           
             const updatedReceiverUser = await User.findOneAndUpdate(
                 { _id: receiverId },
                 {
@@ -111,10 +115,10 @@ export default async function handler(request: NextApiRequest, res: NextApiRespo
             });
 
             console.log('Follow Request sent');
+            return res.status(200).json({ message: 'Follow Request sent Successfully' , updatedReceiverUser, updatedSenderUser});
         }
 
         // Return a success message with a 200 status code
-        return res.status(200).json({ message: 'Follow Request sent Successfully' });
     } catch (error: any) {
         // Handle errors and return appropriate status codes
         if (error.name === 'MongoError') {

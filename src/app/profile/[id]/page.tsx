@@ -1,53 +1,74 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { BsBalloonFill, BsFillSuitcaseLgFill, BsThreeDotsVertical } from 'react-icons/bs';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link'
-import { useParams } from 'next/navigation';
-import { useUser } from '@/libs/useUser';
 import Image from 'next/image';
-import axios from 'axios';
-import FollowButton from '@/components/FollowButton';
-import ConfirmRequest from '@/components/ConfirmRequest';
-import { useSocket } from '@/contexts/socket-provider';
-import { useConfirmOrRejected } from '@/libs/useConfirm';
-import { IUserProps } from '@/types/type';
 
+import { useUser } from '@/libs/useUser';
+import { useSocket } from '@/contexts/socket-provider';
+import { useGetUserById } from '@/queries/quriesAndmutations';
+import { FaArrowLeft } from 'react-icons/fa';
+import { useMoblieSettingModel } from '@/libs/useMobileSettingModel';
+import { FcShare } from 'react-icons/fc';
+import { IoLocation, IoSettings } from 'react-icons/io5';
+import { ClipLoader } from 'react-spinners';
+import PostsTab from '@/components/PostsTab';
+import { useTheme } from '@/contexts/themeProvider';
+import { AiOutlineLink } from 'react-icons/ai';
+import { SlCalender } from 'react-icons/sl';
+import { useEditModel } from '@/libs/useEditModel';
 
 const ProfileId = () => {
   // Get user id from the route parameters
-  const params = useParams();
-  const id = params?.id;
-
+  const { id } = useParams() as any;
+  const router = useRouter();
   // Get the current user from the custom hook
   const { user } = useUser();
-  const { _id } = user || {};
+  const { setIsEditProfile, setEditFromData } = useEditModel();
 
   // Get the socket instance from the context
   const { socket } = useSocket();
+  const { isOpen, onClose, onOpen } = useMoblieSettingModel();
 
-  // State for handling confirmations or rejections
-  const { isSenderConfirmOrRejected, setIsSenderConfirmOrRejected } = useConfirmOrRejected();
+  const { themeMode } = useTheme();
 
-  // State for current user details
-  const [currentUser, setCurrentUser] = useState<IUserProps | null>(null);
+  const { data: currentProfile, isLoading: profileLoading } = useGetUserById(id);
 
+  // const [currentProfile, setcurrentProfile] = useState<IUserProps | null>(null);
   // State for follower and following count
   const [count, setCount] = useState({
-    isFollowers: currentUser?.followers,
-    isFollowing: currentUser?.following
-  })
+    isFollowers: [],
+    isFollowing: []
+  });
+  const [scrollHeight, setScrollHeight] = useState<number>(0);
 
-  // Fetch user details by ID on component mount
   useEffect(() => {
-    const getUsers = async () => {
-      const { data } = await axios.post('/api/users/getUserById', { id: id });
-      setCurrentUser(data);
-      setCount({ isFollowers: data.followers, isFollowing: data.following })
-    };
-    getUsers();
-  }, [id]);
+    console.log('profileupdaed')
+  },[currentProfile])
 
-  // Subscribe to socket events for follower and following count updates
+  useEffect(() => {
+    const statusContainer = document.getElementById('profileContainer');
+
+    statusContainer?.addEventListener('scroll', () => {
+      const windowHeight = statusContainer.scrollTop;
+      setScrollHeight(windowHeight);
+    })
+
+    return () => {
+      statusContainer?.removeEventListener('scroll', () => {
+        const windowHeight = statusContainer.scrollTop;
+        setScrollHeight(windowHeight);
+      })
+    }
+
+  }, [scrollHeight]);
+
+  useEffect(() => {
+    setCount({ isFollowers: currentProfile?.data?.followers, isFollowing: currentProfile?.data?.following })
+  }, [currentProfile])
+
   useEffect(() => {
     if (!socket) return;
 
@@ -69,81 +90,165 @@ const ProfileId = () => {
       socket.off('updatedFollowing');
     }
 
-  }, [socket, count]);
+  }, [socket]);
 
-  // If the currentUser is not available, return null
-  if (!currentUser) return null;
+
+  const handleSettingModel = () => {
+    if (isOpen) {
+      onClose();
+    } else {
+      onOpen();
+    }
+  };
+
+  const handleEditModel = () => {
+    setIsEditProfile(true);
+    setEditFromData({
+      backgroundImage: currentProfile?.data?.backgroundImage,
+      name: currentProfile?.data?.name,
+      bio: currentProfile?.data?.bio,
+      profession: currentProfile?.data?.profession,
+      profilePicture: currentProfile?.data?.profilePicture,
+      dob: currentProfile?.data?.dob,
+      link: currentProfile?.data?.link,
+      location: currentProfile?.data?.location
+    })
+  }
+
+  if (profileLoading) {
+    return (
+      <div className='w-full h-full flex justify-center items-start bg-white dark:bg-black text-black dark:text-white'>
+        <ClipLoader color='#2f8bfc' loading size={25} />
+      </div>
+    )
+  }
+
+  // If the currentProfile?.data?.data is not available, return null
+  if (!currentProfile) return null;
 
 
   return (
-    <div className='w-full h-full flex-col overflow-hidden overflow-y-auto p-5 transition-all text-[#000] dark:text-white  bg-[#fff] dark:bg-[#000]'>
-      <div className=' w-full h-[74px]'>
-        <ConfirmRequest
-          friendRequests={currentUser.friendRequests}
-          senderId={_id!}
-          receiverId={id!}
-          notification='profile'
-          isSenderConfirmOrRejected={isSenderConfirmOrRejected}
-          setIsSenderConfirmOrRejected={setIsSenderConfirmOrRejected}
-        />
-      </div>
-      <div className='w-full h-auto relative rounded-xl flex p-3 '>
+    <div id='profileContainer' className='w-full h-full relative flex-col bg-white  lg:flex overflow-hidden overflow-y-auto custom-scrollbar  transition-all text-[#000] dark:text-white dark:bg-[#000]'>
 
-        <div className='relative w-[34%] h-full flex justify-center items-center'>
-          <div className='w-[200px] h-[200px] rounded-full relative shadow shadow-neutral-400'>
-            <Image
-              src={currentUser.profilePicture ? currentUser.profilePicture : '/profile-circle.svg'}
-              alt='profile picture'
-              fill
-              className='rounded-full object-cover shadow shadow-neutral-400 '
-            />
-          </div>
-        </div>
+      <div className='w-full h-auto  flex flex-col  backdrop-blur-md  backdrop-filter bg-opacity-60 rounded-[25px]'>
+        <div className='w-full h-auto relative flex justify-center items-center flex-col '>
+          <div
+            style={{
+              background: `${themeMode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
+              boxShadow: '0, 8px 32px 0 rgba(31, 38, 135, 0.37)',
+              backdropFilter: 'blur(14px)',
+            }}
+            className={`w-full h-[70px] ${scrollHeight > 70 ? 'sticky top-0 left-0 z-[99]' : 'relative'} flex justify-between text-xl font-bold items-center px-4 gap-6 `}>
+            <div className='flex justify-center items-center '>
+              <FaArrowLeft
+                onClick={() => router.push('/')}
+                className='text-[#2f8bfc] cursor-pointer text-2xl'
+              />
+              <div className='flex flex-col text-start leading-3 fontsfamily ml-4'>
+                <h3 className='text-[18px] text-white font-bold'>{currentProfile?.data?.name}</h3>
+                <p className='text-[15px] text-gray-400 mt-2 dark:text-neutral-400 font-normal '>{currentProfile?.data?.posts.length} posts</p>
+              </div>
+            </div>
 
-        <div className='w-[66%] h-full '>
-          <div className='w-full flex justify-start items-center gap-5 px-8'>
-            <h1 className='text-[20px] shadow shadow-neutral-400 p-2 rounded-xl'>{currentUser.name}</h1>
-            {_id === id ? (
-              <Link href={`/edit`} className='px-4 py-2 bg-gray-200 dark:bg-neutral-800 rounded-lg ml-4 hover:shadow hover:shadow-neutral-400 transition-all' >
-                Edit profile
+            <div className='flex justify-center items-center gap-5'>
+              <Link
+                href='/'
+                className='py-1 flex px-3 text-[14px] 
+                     dark:text-white text-black rounded-full dark:bg-black bg-white'
+              >
+                <FcShare />
               </Link>
-            )
-              :
-              (
-                <FollowButton
-                  friendRequests={currentUser.friendRequests}
-                  senderId={_id}
-                  receiverId={id}
-                  followers={currentUser.followers}
-                  following={currentUser.following}
-                  isPrivate={currentUser.isPrivate}
+
+              <IoSettings
+                onClick={handleSettingModel}
+                className='text-xl text-white cursor-pointer md:hidden flex'
+              />
+            </div>
+
+          </div>
+
+          <div className='w-full h-[170px]  flex justify-center items-center relative bg-gray-400 dark:bg-neutral-800'>
+            <div className='w-[170px] h-full relative'>
+              <Image
+                src={currentProfile?.data?.backgroundImage ? currentProfile?.data?.backgroundImage : '/profile-circle.svg'}
+                fill
+                alt='image'
+                className='object-cover'
+              />
+            </div>
+          </div>
+
+          <div className='w-full h-[70px] flex justify-end items-center  relative'>
+            <div className='w-[140px] h-[140px] absolute top-[-70px] left-[20px] overflow-hidden rounded-full border-4 dark:border-black border-white'>
+              <div className='w-full h-full relative '>
+                <Image
+                  src={currentProfile?.data?.profilePicture ? currentProfile?.data?.profilePicture : '/profile-circle.svg'}
+                  fill
+                  alt='profile'
+                  className='object-cover'
                 />
-              )
+              </div>
+            </div>
+            <button onClick={handleEditModel} className='px-3 py-1 text-black mr-6 text-[15px] dark:text-white  rounded-2xl border-2 border-[#2f8bfc] dark:bg-black bg-white hover:bg-gray-200 dark:hover:bg-neutral-700'>
+              edit profile
+            </button>
+          </div>
+
+          <div className=' w-full h-auto mt-[18px] flex flex-col justify-start px-[20px]'>
+            <div className='flex flex-col text-start fontsfamily leading-3'>
+              <h3 className='text-[18px] text-white font-bold'>{currentProfile?.data?.name}</h3>
+              <p className='text-[15px] text-gray-400 mt-3 dark:text-neutral-400 font-normal '>@{currentProfile?.data?.username}</p>
+            </div>
+            {currentProfile?.data?.bio &&
+              <h3 className=' mt-4 mb-4 text-[15px] text-white font-normal '>{currentProfile?.data?.bio}</h3>
             }
-          </div>
-          <div className='w-full flex justify-start items-center gap-5 px-8 mt-4 '>
-            <span className=' text-[16px] text-sm shadow shadow-neutral-400 p-2 rounded-xl'>
-              {currentUser.posts.length} posts
-            </span>
-            <span className='text-[16px] text-sm shadow shadow-neutral-400 p-2 rounded-xl'>
-              {count.isFollowers?.length} followers
-            </span>
-            <span className=' text-[16px] text-sm shadow shadow-neutral-400 p-2 rounded-xl'>
-              {count.isFollowing?.length} following
-            </span>
+            <div className='flex flex-col gap-2 leading-3 tracking-wider font-light text-[15px] text-gray-400  dark:text-neutral-400 '>
+              {currentProfile?.data?.profession &&
+                <p className='flex justify-start items-center gap-1'><BsFillSuitcaseLgFill /> {currentProfile?.data?.profession}</p>
+              }
+              {currentProfile?.data?.link &&
+                <p className='flex justify-start items-center gap-1'><AiOutlineLink /> <Link className='text-[#2f8bfc]' href={currentProfile?.data?.link}>{currentProfile?.data?.link.replace(/^https:\/\//,"")}</Link></p>
+              }
+              <div className='flex justify-start items-center gap-2'>
+                {currentProfile?.data?.location &&
+                  <p className='flex justify-start items-center gap-1'><IoLocation /> {currentProfile?.data?.location}</p>
+                }
+                {currentProfile?.data?.dob &&
+                  <p className='flex justify-start items-center gap-1'><BsBalloonFill />{`Born ${currentProfile?.data?.dob?.date} ${currentProfile?.data?.dob?.month} ${currentProfile?.data?.dob?.year}`}</p>
+                }
+              </div>
+              <p className='flex justify-start items-center gap-1'><SlCalender /> Joined September 2023</p>
+            </div>
+            <div className='flex text-start gap-2 mt-2'>
+              <p className='text-[15px] text-gray-400 mt-2 dark:text-neutral-400 font-normal '><span className='dark:text-white text-black'>{count ? count.isFollowers?.length : currentProfile?.data?.followers} </span>Followers</p>
+              <p className='text-[15px] text-gray-400 mt-2 dark:text-neutral-400 font-normal '><span className='dark:text-white text-black'>{count ? count.isFollowing?.length : currentProfile?.data?.following} </span>Following</p>
+            </div>
           </div>
 
-          <div className='w-full flex justify-start items-center gap-5 px-8 mt-4 '>
-            <h3 className='text-[14px] font-semibold shadow shadow-neutral-400 p-2 rounded-xl'> {currentUser.username}</h3>
-          </div>
+          <PostsTab
+            currentProfileUserData={{
+              name: currentProfile?.data?.name!,
+              userName: currentProfile?.data?.username!,
+              userProfile: currentProfile?.data?.profilePicture!,
+              userId: currentProfile?.data?._id!
+            }}
+          />
 
-          <div className='w-full flex justify-start items-center gap-5 px-8 mt-4 '>
-            <p className='text-[14px] whitespace-pre-wrap shadow shadow-neutral-400 p-2 rounded-xl'> {currentUser.bio}</p>
-          </div>
+          {/* <Profiletabs
+            showFollowers={showFollowers}
+            showFollowing={showFollowing}
+            showPosts={showPosts}
+            currentProfileUserData={{
+              name: currentProfile?.data?.name!,
+              userName: currentProfile?.data?.username!,
+              userProfile: currentProfile?.data?.profilePicture!,
+              userId: currentProfile?.data?._id!
+            }}
+          /> */}
+
         </div>
-
       </div>
-    </div>
+    </div >
   )
 }
 

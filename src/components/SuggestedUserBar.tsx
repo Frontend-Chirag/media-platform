@@ -6,52 +6,80 @@ import axios from 'axios';
 import { useUser } from '@/libs/useUser';
 import { IUserProps } from '@/types/type';
 import UsersContainer from './UsersContainer';
-
+import { getSuggestedUsers } from '@/queries/quriesAndmutations';
+import { usePathname } from 'next/navigation';
 
 const SuggestedUserBar = () => {
 
-  const [suggestedUsers, setSuggestedUsers] = useState<IUserProps[]>([]);
   const { user } = useUser();
   const { username, _id } = user || {};
 
+  const [suggestedUsers, setSuggestedUsers] = useState<IUserProps[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isPaths = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/update-password',
+    '/verify-account',
+    '/resend-verification-email',
+    '/conversations',
+];
+
+const pathName = usePathname();
+
+const shouldHideComponent = isPaths.includes(pathName!);
 
 
-  // Effect to fetch suggested users when the component mounts
   useEffect(() => {
-    const fetchSuggestedUsers = async () => {
-      try {
-        const response = await axios.get('/api/users/getAllUsers');
-        const suggestedUsersData: IUserProps[] = response.data;
-        setSuggestedUsers(suggestedUsersData);
-      } catch (error: any) {
-        console.log(error);
-        throw new Error(error)
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      if (_id) {
+
+        const res = await axios.get('/api/users/getAllUsers');
+        setSuggestedUsers(res.data)
       }
+
+      setIsLoading(false)
     };
 
-    fetchSuggestedUsers();
-  }, []);
+    fetchData();
+
+  }, [_id])
 
   // Filter out the current user from the suggestedUsers list
-  const filterCurrentUser = suggestedUsers.filter((user) => user.username !== username);
+  const filterCurrentUser = suggestedUsers?.filter((user: IUserProps) => user.username !== username);
 
+  if (shouldHideComponent || pathName?.startsWith('/conversations/')) {
+    return
+  }
+
+  if (isLoading) {
+    <div className='w-full h-full flex justify-center items-center'>
+      <h1>Loading....</h1>
+    </div>
+  }
 
   return (
-    <div className='w-[367px] h-full hidden md:flex flex-col    shadow-md shadow-gray-400 dark:shadow-neutral-700 gap-2 px-2 py-6 '>
-      <h1 className='text-lg font-semibold ml-3'>Suggested for you</h1>
-      {filterCurrentUser.map((user) => (
-        <UsersContainer
-          key={user._id}
-          receiverId={user._id}
-          senderId={_id}
-          username={user.username}
-          profilePicture={user.profilePicture}
-          friendRequests={user.friendRequests}
-          followers={user.followers}
-          following={user.following}
-          isPrivate={user.isPrivate}
-        />
-      ))}
+    <div className='xl:w-[calc(100%-1000px)] lg:w-[calc(100%-700px)] dark:bg-black bg-white h-full hidden md:flex flex-col border-l-[1px] dark:border-l-neutral-500 border-l-gray-400 gap-2 px-6 box-content py-6 '>
+      <div className='w-full h-auto border-2 rounded-2xl border-neutral-500 p-4 flex flex-col justify-start items-start'>
+        <h1 className='fontsfamily text-xl mb-4 dark:text-neutral-300 text-gray-200 font-bold '>Who to Follow</h1>
+        {filterCurrentUser?.map((user: IUserProps) => (
+          <UsersContainer
+            key={user._id}
+            receiverId={user._id}
+            senderId={_id}
+            username={user.username}
+            profilePicture={user.profilePicture}
+            friendRequests={user.friendRequests}
+            followers={user.followers}
+            following={user.following}
+            isPrivate={user.isPrivate}
+          />
+        ))}
+      </div>
     </div>
   )
 }

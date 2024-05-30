@@ -7,28 +7,33 @@ import axios from 'axios';
 
 import { useSocket } from '@/contexts/socket-provider';
 import { IConfirmRequestProps } from '@/types/type';
+import { useCheckConfirm } from '@/libs/useCheckConfirm';
 
 
-const ConfirmRequest: React.FC<IConfirmRequestProps> = ({ isSenderConfirmOrRejected,  setIsSenderConfirmOrRejected, friendRequests, receiverId, senderId, notification }) => {
+const ConfirmRequest: React.FC<IConfirmRequestProps> = ({ friendRequests,
+    receiverId, senderId, }) => {
 
     const { socket } = useSocket();
 
     const [isCancelLoading, setIsCancelLoading] = useState(false);
     const [isConfirmLoading, setIsConfirmLoading] = useState(false);
     const [senderConfirmOrRejected, setSenderConfirmOrRejected] = useState(friendRequests);
+    const [isSenderConfirmOrRejected, setIsSenderConfirmOrRejected] = useState(false);
+
 
     useEffect(() => {
-        if (senderConfirmOrRejected) {
-            const isSenderConfirmOrRejectedsent = senderConfirmOrRejected.some((request) =>
-                request.receiverId === senderId && request.status === 'pending'
-            );
-            console.log('isSenderConfirmOrRejectedsent', isSenderConfirmOrRejectedsent)
-            setIsSenderConfirmOrRejected(isSenderConfirmOrRejectedsent)
-        }
+        const isSenderConfirmOrRejectedsent = senderConfirmOrRejected.some((request) =>
+            request.receiverId === senderId && request.status === 'pending'
+        );
+        console.log('isSenderConfirmOrRejectedsent', isSenderConfirmOrRejectedsent)
+        setIsSenderConfirmOrRejected(isSenderConfirmOrRejectedsent);
 
-    }, [receiverId, senderConfirmOrRejected, senderId]);
+    }, [receiverId, senderConfirmOrRejected, senderId, isSenderConfirmOrRejected]);
 
     useEffect(() => {
+
+        if (!socket) return;
+
         socket.on('connect', () => {
             socket.on('confirmRequest', (data: any) => {
                 if (data.senderUser._id === receiverId) {
@@ -63,7 +68,6 @@ const ConfirmRequest: React.FC<IConfirmRequestProps> = ({ isSenderConfirmOrRejec
             await axios.post('/api/socket/confirmFollowRequest', { senderId: senderId, receiverId: receiverId });
 
             setIsConfirmLoading(false);
-
         } catch (error: any) {
             console.log(error)
             throw new Error(error)
@@ -73,18 +77,17 @@ const ConfirmRequest: React.FC<IConfirmRequestProps> = ({ isSenderConfirmOrRejec
     return (
         <>
             {isSenderConfirmOrRejected &&
-                <div className={` ${notification === 'notify' ? 'h-full w-[110px] ' : 'h-[74px] w-full'} flex justify-center items-center`}>
-                    <div className={`w-full h-full flex justify-center  ${notification === 'notify' ? 'gap-2' : 'gap-20'}  items-center `}>
-                        <button className={`${notification === 'notify' ? 'px-[8px] py-[4px] text-[14px] rounded-md' : 'px-8 py-2 text-md rounded-lg'} bg-[#2f8bfc] text-white  font-semibold border-none outline-none`}
+                <div className={`w-full h-[74px] flex justify-center items-center`}>
+                    <div className={`w-full h-full flex justify-center  gap-20  items-center `}>
+                        <button className={`px-8 py-2 text-md rounded-lg bg-[#2f8bfc] text-white  font-semibold border-none outline-none`}
                             onClick={handleConfirmRequest}
                         >
                             {isConfirmLoading
                                 ? 'Loading..'
                                 : 'Confirm'
                             }
-
                         </button>
-                        <button className={`${notification === 'notify' ? 'px-2 py-1 text-sm' : 'px-8 py-2 text-md'} dark:bg-neutral-900  text-neutral-600 font-semibold rounded-lg outline-none border-none`}
+                        <button className={`px-8 py-2 text-md dark:bg-neutral-900  text-neutral-600 font-semibold rounded-lg outline-none border-none`}
                             onClick={handleCancelRequest}
                         >
                             {isCancelLoading

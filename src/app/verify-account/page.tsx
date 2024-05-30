@@ -42,12 +42,12 @@ const VerifyAccount = () => {
                             alt='verifyAccountImage'
                             width={150}
                             height={150}
-                            className='object-cover '
+                            className='object-cover rounded-full'
                         />
                     </div>
-                    <div className='w-full flex justify-center flex-col items-center gap-3'>
-                        <h1 className='font-bold'><span className='text-[#2f8bfc]'>Verify </span>your email address</h1>
-                        <p className='text-sm font-semibold text-center'>
+                    <div className='w-full flex justify-center flex-col items-center gap-3 mt-2'>
+                        <h1 className='font-bold  text-neutral-400'><span className='text-[#2f8bfc]'>Verify </span>your email address</h1>
+                        <p className='text-sm font-semibold text-center text-neutral-400'>
                             <span className='text-[#2f8bfc]'> Please verify your email address </span> by clicking the button below.
                         </p>
                     </div>

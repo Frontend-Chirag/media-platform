@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 export async function POST(request: NextRequest) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+      await  ConnectedToDatabase();
 
         // Get user data from frontend or request body
         const reqBody = await request.json();
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
         // Validate user data for non-empty fields
         if ([name, email, password].some((fields) => fields?.trim() === '')) {
-            return toast.error('Please fill all the fields');
+            return NextResponse.json({message :'Fill all the fields'},{status: 404})
         }
 
         // Check if user already exists by name or email
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
         // If user exists, return an error
         if (existingUser) {
-            return toast.error('User already exists');
+            return NextResponse.json({message :'User already exist'},{status: 402})
         }
 
         // Create user
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
 
         // If user is not created, return an error
         if (!createdUser) {
-            return toast.error('User not created');
+            return NextResponse.json({message :'Didn"t able to create user'},{status: 400})
         }
 
         // Generate and set the verification token for email verification

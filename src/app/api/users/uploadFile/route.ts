@@ -1,23 +1,26 @@
 import { User } from '@/Schemas/userSchema';
 import { uploadOnCloudinary } from '@/utils/cloudinary';
-import { getUserByCookies } from '@/utils/getUserByCookies';
+import jwt from 'jsonwebtoken';
 import { writeFile } from 'fs/promises';
 import { NextResponse, NextRequest } from 'next/server';
 import { join } from 'path';
+import { getUserByCookies } from '@/utils/getUserByCookies';
+import { ConnectedToDatabase } from '@/DB/databaseConnection';
 
-export const config = {
-  api: {
-    parser: false,
-  }
-}
+// export const config = {
+//   api: {
+//     parser: false,
+//   }
+// }
 
 export async function POST(request: NextRequest) {
   try {
+    await ConnectedToDatabase()
     // Parse the form data
     const reqBody = await request.formData();
 
     // Get the profilePicture file from the form data
-    const imageFile: File | null = reqBody.get('profilePicture') as unknown as File;
+     const imageFile: File | null = reqBody.get('profilePicture') as unknown as File;
 
     // If no file is found, return a 400 status code
     if (!imageFile) {
@@ -36,8 +39,8 @@ export async function POST(request: NextRequest) {
     const imageUrl = await uploadOnCloudinary(path);
 
     // Get the user ID from cookies
-    const userId = await getUserByCookies(request);
-
+    const userId =  await getUserByCookies(request);
+    
     // Update the user's profile picture with the new URL
     const user = await User.findByIdAndUpdate(userId, {
       profilePicture: imageUrl

@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { User } from '@/Schemas/userSchema';
 import jwt from 'jsonwebtoken';
 import { generateAccessAndRefreshToken } from '@/utils/generateAccessAndRefreshToken';
+import { ConnectedToDatabase } from '@/DB/databaseConnection';
 
 export async function POST(req: NextRequest) {
     try {
+        await ConnectedToDatabase();
         // Retrieve the existing refresh token from cookies
         const existingRefreshToken = req.cookies.get('refreshToken')?.value || '';
         let refreshTokenState = false;
@@ -26,6 +28,7 @@ export async function POST(req: NextRequest) {
 
             // Generate new access and refresh tokens
             const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+
 
             // Create a JSON response with the new tokens and a 200 status code
             const response = NextResponse.json({ accessToken, refreshToken }, { status: 200 });

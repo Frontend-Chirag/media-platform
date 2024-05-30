@@ -1,10 +1,13 @@
 import { NextRequest } from "next/server";
+import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 
 
 export async function getUserByCookies(request: NextRequest) {
     try {
-        const token = request.cookies.get('accessToken')?.value || '';
+        // const token = request.cookies.get('accessToken')?.value || '';
+        const token = cookies().get('accessToken')?.value || '';
+        
         let tokenState = false;
 
         const { exp } = jwt.decode(token) as jwt.JwtPayload;

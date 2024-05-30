@@ -10,16 +10,22 @@ import { useSocket } from '@/contexts/socket-provider';
 import { useNotificationData } from '@/libs/useNotificationdata';
 import NotificationLoaders from '@/Loaders/NotificationLoaders';
 import { timeAgo } from '@/constant';
-import { useConfirmOrRejected } from '@/libs/useConfirm';
+
 import { IUserProps, NotificationData } from '@/types/type';
+import { useCheckConfirm } from '@/libs/useCheckConfirm';
+import { FaArrowLeft } from 'react-icons/fa';
+import NotificationFollowRequesteButton from './NotificationFollowRequesteButton';
+
+
 const Notification = () => {
 
-    const { isNotification } = useNotificationModel();
     const { user } = useUser();
     const { socket } = useSocket();
-
-    const { isSenderConfirmOrRejected, setIsSenderConfirmOrRejected } = useConfirmOrRejected();
+    const { isCheckConfirm } = useCheckConfirm();
+    const { onNotificationClose, onNotificationOpen, isNotification } = useNotificationModel();
     const { NotificationLoading, notificationData } = useNotificationData();
+    
+
     const [updatedNotificationMessage, setUpdatedNotificationMessage] = useState<NotificationData | null>(null);
     const [newNotificationMessage, setNewNotificationMessage] = useState(false);
 
@@ -32,8 +38,6 @@ const Notification = () => {
                     updatedNotificationMessage?.userTo === existingMessage.notificationData.userTo &&
                     updatedNotificationMessage?.notificationType !== existingMessage.notificationData.notificationType;
 
-                    console.log('newfollowNotificationMessage', newfollowNotificationMessage)
-
                 if (newfollowNotificationMessage) {
                     setNewNotificationMessage(newfollowNotificationMessage)
                 }
@@ -44,8 +48,6 @@ const Notification = () => {
 
 
     }, [updatedNotificationMessage]);
-
-
 
 
     useEffect(() => {
@@ -62,25 +64,38 @@ const Notification = () => {
             socket.off('updatedNotification')
         }
 
-    }, [socket])
+    }, [socket]);
+
+    // Function for handle notification Model
+    const handleNotificationModel = () => {
+        if (isNotification) {
+            onNotificationClose();
+        }
+    };
+
+    useEffect(() => {
+        console.log('isCheckConfirm', isCheckConfirm);
+    }, [isCheckConfirm]);
 
 
     return (
         <div className={`
-        w-[397px] 
+        md:w-[397px]
+        w-full 
         h-full 
         absolute 
         top-0 
-        ${!isNotification ? 'left-[-397px] ' : 'left-[100px] '}
+        ${!isNotification ? 'md:left-[-397px] left-[-100%] ' : 'md:left-[100px] left-0 '}
         bg-white
         dark:bg-black
-        dark:border-neutral-700
+        
         border-gray-400
         transition-all
         px-1
         py-5
         overflow-hidden
-        overflow-y-scroll
+        md:overflow-y-scroll
+        overflow-y-auto
         flex
         flex-col
         justify-start
@@ -88,7 +103,10 @@ const Notification = () => {
         z-[9]
         
         `}>
-            <h1 className='text-2xl w-full py-2 dark:text-neutral-200 font-bold text-black'>Notifications</h1>
+            <div className=' w-full flex  justify-start md:items-start items-center gap-4 p-2 md:py-2 md:px-0 h-auto dark:text-neutral-200 font-bold text-black'>
+                <FaArrowLeft className='flex md:hidden cursor-pointer' onClick={handleNotificationModel} />
+                <h1 className='text-2xl w-full py-2 '>Notifications</h1>
+            </div>
             {NotificationLoading ?
                 <NotificationLoaders />
                 :
@@ -99,7 +117,7 @@ const Notification = () => {
                                 {notify.senderUser.map((senderuser: IUserProps) => {
 
                                     return (
-                                        <div className='w-full h-[85px] max-h-[110px]  flex-wrap flex gap-1 dark:bg-black bg-white border-b-black border-b-[1px] dark:border-b-neutral-700  justify-start items-center '>
+                                        <div key={senderuser._id} className='w-full h-[85px] max-h-[110px]  flex-wrap flex gap-1 dark:bg-black bg-white border-b-black border-b-[1px] dark:border-b-neutral-700  justify-start items-center '>
                                             <div className='w-[39px] h-[39px] relative'>
                                                 <Image
                                                     src={senderuser.profilePicture ? senderuser.profilePicture : '/profile-circle.svg'}
@@ -123,27 +141,14 @@ const Notification = () => {
                                                 </p>
                                             </div>
 
-                                            {isSenderConfirmOrRejected ?
-                                                <ConfirmRequest
-                                                    friendRequests={senderuser.friendRequests}
-                                                    senderId={user?._id!}
-                                                    receiverId={senderuser._id!}
-                                                    notification='notify'
-                                                    isSenderConfirmOrRejected={isSenderConfirmOrRejected}
-                                                    setIsSenderConfirmOrRejected={setIsSenderConfirmOrRejected}
-                                                />
-                                                :
-                                                <FollowButton
-                                                    friendRequests={senderuser.friendRequests}
-                                                    senderId={user?._id}
-                                                    receiverId={senderuser._id}
-                                                    followers={senderuser.followers}
-                                                    following={senderuser.following}
-                                                    isPrivate={senderuser.isPrivate}
-
-                                                />
-
-                                            }
+                                            <NotificationFollowRequesteButton
+                                                isPrivate={senderuser.isPrivate}
+                                                friendRequests={senderuser.friendRequests}
+                                                senderId={user?._id!}
+                                                receiverId={senderuser._id}
+                                                followers={senderuser.followers}
+                                                following={senderuser.following}
+                                            />
 
                                         </div>
                                     )
@@ -151,11 +156,9 @@ const Notification = () => {
                             </div>
                         ))
                     ) : (
-                        <p>No Notifications available.</p>
+                        <p className='dark:text-white text-black'>No Notifications available.</p>
                     )}
-
                 </>
-
             }
         </div>
     )

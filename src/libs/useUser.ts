@@ -2,12 +2,22 @@
 import { IUserProps } from '@/types/type';
 import { create } from 'zustand';
 
-interface State  {
+type ReactUserDataOrSetterFn<T> = T | ((prev: T) => T)
+
+interface State {
     user: IUserProps | null;
-    setUser: (user: IUserProps | null) => void;
+    setUser: (userDataOrSetterFn: ReactUserDataOrSetterFn<IUserProps>) => void;
 };
 
 export const useUser = create<State>((set) => ({
     user: null,
-    setUser: (user) => set({ user }),
+    setUser: (userDataOrSetterFn) => {
+        set(({user}) => {
+            if (typeof userDataOrSetterFn === 'function') {
+                const setterFn = userDataOrSetterFn;
+                return { user: setterFn(user!) }
+            }
+            return { user: userDataOrSetterFn }
+        })
+    },
 }));

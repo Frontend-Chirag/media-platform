@@ -2,16 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ConnectedToDatabase } from "@/DB/databaseConnection";
 import { User } from "@/Schemas/userSchema";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest, params: { params: { id: string } }) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+     await  ConnectedToDatabase();
 
-        // Parse the request body as JSON
-        const reqBody = await req.json();
+        // Extract the user ID from url
+        const url = new URL(req.url);
 
-        // Extract relevant data from the request body
-        const { id } = reqBody;
+        const id = url.searchParams.get('id')
 
         // Find the user by ID and exclude sensitive information
         const user = await User.findOne({ _id: id }).select('-password -refreshToken');

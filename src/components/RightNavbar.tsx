@@ -12,6 +12,8 @@ import { useNotificationModel } from '@/libs/useNotificationModel';
 import { useSocket } from '@/contexts/socket-provider';
 import { useTheme } from '@/contexts/themeProvider';
 import { useNotificationData } from '@/libs/useNotificationdata';
+import { usePosts } from '@/libs/usePost';
+import { useNewMessageUserSearch } from '@/libs/useNewMessageUserSearch';
 
 const RightNavbar = () => {
 
@@ -21,8 +23,10 @@ const RightNavbar = () => {
     const { onNotificationClose, onNotificationOpen, isNotification } = useNotificationModel();
     const { user } = useUser();
     const { profilePicture, _id } = user || {};
+    const { setConversationId } = useNewMessageUserSearch();
     const { themeMode } = useTheme();
     const { isNotificationLoading, onNotificationLoaded, setNotificationData } = useNotificationData();
+    const { onPostOpen } = usePosts()
     const [newNotification, setNewNotification] = useState(false);
 
 
@@ -41,7 +45,6 @@ const RightNavbar = () => {
 
         socket.on('connect', () => {
             socket.on('sendFollowRequestNotification', (notify: any) => {
-                console.log('notify', notify)
                 setNewNotification(notify.newNotification)
             })
         });
@@ -94,19 +97,24 @@ const RightNavbar = () => {
     }
 
     return (
-        <div className={` ${isNotification ? 'w-[100px]  ' : 'w-[243px]'}  
+        <div className={` ${isNotification ? 'w-[100px]  ' : 'xl:w-[320px] lg:w-[100px] '}   md:flex md:flex-col hidden
         transition-all col-span-1 h-full dark:bg-[#000] dark:text-white text-black bg-white
-         shadow-md shadow-gray-400 dark:shadow-neutral-700 relative`}>
-            <div className='w-full h-[70px] border-b-[1px] border-gray-300 dark:border-b-neutral-800 gap-10 flex justify-center items-center'>
-                {
-                    isConnected ? <span className='w-2 h-2 rounded-full bg-green-400 '></span>
-                        : <span className='w-2 h-2 rounded-full bg-red-400 '></span>
-                }
-                Logo
+        border-r-[1px] dark:border-r-neutral-500 border-r-gray-400 relative fontsfamily`}>
+            {
+                isConnected ? <span className='w-2 h-2 rounded-full bg-green-400 '></span>
+                    : <span className='w-2 h-2 rounded-full bg-red-400 '></span>
+            }
+            <div className='w-full h-[70px] border-b-[1px] border-gray-300 dark:border-b-neutral-500 gap-10 flex justify-center items-center'>
+                <Image
+                    src={'/logo-blue.png'}
+                    width={80}
+                    height={80}
+                    alt='logo'
+                />
             </div>
-            <div className='w-full h-[calc(100%-170px)] p-2 flex justify-center items-center flex-col gap-6'>
+            <div className='w-full h-[calc(100%-170px)] py-4 px-6  box-border flex justify-center items-center flex-col gap-6'>
 
-                <Link href='/' className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-start items-start'}`} >
+                <Link href='/' className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-center items-center xl:justify-start xl:items-center'}`} >
                     {themeMode === 'dark' ? (<svg fill="#fff" width="24px" height="24px" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" className="jam jam-home">
                         <path d='M18 18V7.132l-8-4.8-8 4.8V18h4v-2.75a4 4 0 1 1 8 0V18h4zm-6 2v-4.75a2 2 0 1 0-4 0V20H2a2 2 0 0 1-2-2V7.132a2 2 0 0 1 .971-1.715l8-4.8a2 2 0 0 1 2.058 0l8 4.8A2 2 0 0 1 20 7.132V18a2 2 0 0 1-2 2h-6z' />
                     </svg>
@@ -116,9 +124,9 @@ const RightNavbar = () => {
                         </svg>
                     )
                     }
-                    {!isNotification && <p className='ml-2 font-light text-md'>Home</p>}
+                    {!isNotification && <p className='ml-2 font-bold text-lg hidden xl:flex'>Home</p>}
                 </Link>
-                <Link href='/search' className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-start items-start'}`} >
+                <Link href='/search' className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-center items-center xl:justify-start xl:items-center'}`} >
                     {themeMode === 'dark' ? (
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" >
                             <circle cx="11" cy="11" r="8" />
@@ -130,9 +138,9 @@ const RightNavbar = () => {
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>)
                     }
-                    {!isNotification && <p className='ml-2 font-light text-md' >Search</p>}
+                    {!isNotification && <p className='ml-2 font-bold text-lg hidden xl:flex' >Search</p>}
                 </Link>
-                <Link href='/messages' className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-start items-start'}`} >
+                <Link href='/conversations' onClick={() => setConversationId('')} className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-center items-center xl:justify-start xl:items-center'}`} >
                     {themeMode === 'dark' ? (<svg version="1.1" id="Capa_1" width="22px" fill="#fff" height="22px" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                         viewBox="0 0 217.762 217.762" xmlSpace="preserve">
                         <path d="M108.881,5.334C48.844,5.334,0,45.339,0,94.512c0,28.976,16.84,55.715,45.332,72.454
@@ -155,9 +163,9 @@ const RightNavbar = () => {
                         />
                     </svg>
                     )}
-                    {!isNotification && <p className='ml-2 font-light text-md'>Messages</p>}
+                    {!isNotification && <p className='ml-2 font-bold text-lg hidden xl:flex'>Conversations</p>}
                 </Link>
-                <div onClick={() => { handleNotificationModel(), setNewNotification(false) }} className={`w-full relative p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-start items-start'}`} >
+                <div onClick={() => { handleNotificationModel(), setNewNotification(false) }} className={`w-full relative p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-center items-center xl:justify-start xl:items-center'}`} >
                     {newNotification && <div className={`w-2 h-2 rounded-full bg-red-500 absolute top-3 left-3`} />}
                     {
                         themeMode === 'dark' ? (
@@ -171,9 +179,9 @@ const RightNavbar = () => {
                             </svg>
                         )
                     }
-                    {!isNotification && <p className='ml-2 font-light text-md'>Notifications</p>}
+                    {!isNotification && <p className='ml-2 font-bold text-lg hidden xl:flex'>Notifications</p>}
                 </div>
-                <div className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-start items-start'}`} >
+                <div onClick={() => onPostOpen()} className={`w-full p-3 cursor-pointer dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all rounded-md flex ${isNotification ? 'justify-center items-center' : 'justify-center items-center xl:justify-start xl:items-center'}`} >
                     {themeMode === 'dark' ? (
                         <svg width="24px" height="24px" fill="#fff" viewBox="0 0 24 24" id="magicoon-Regular" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -193,11 +201,11 @@ const RightNavbar = () => {
                                 <path id="plus-square-Regular-2" data-name="plus-square-Regular" className="cls-1" d="M15,2.25H9A6.758,6.758,0,0,0,2.25,9v6A6.758,6.758,0,0,0,9,21.75h6A6.758,6.758,0,0,0,21.75,15V9A6.758,6.758,0,0,0,15,2.25ZM20.25,15A5.256,5.256,0,0,1,15,20.25H9A5.256,5.256,0,0,1,3.75,15V9A5.256,5.256,0,0,1,9,3.75h6A5.256,5.256,0,0,1,20.25,9Zm-3.5-3a.75.75,0,0,1-.75.75H12.75V16a.75.75,0,0,1-1.5,0V12.75H8a.75.75,0,0,1,0-1.5h3.25V8a.75.75,0,0,1,1.5,0v3.25H16A.75.75,0,0,1,16.75,12Z" /></g></svg>
                     )
                     }
-                    {!isNotification && <p className='ml-2 font-light text-md'>Create</p>}
+                    {!isNotification && <p className='ml-2 font-bold text-lg hidden xl:flex'>Create</p>}
                 </div>
 
                 <Link href={`/profile/${_id}`} className='w-full' >
-                    <div className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all gap-2 rounded-md flex ${!isNotification ? 'justify-start' : 'justify-center'} items-center`} >
+                    <div className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200 transition-all gap-2 rounded-md flex ${!isNotification ? 'xl:justify-start justify-center ' : 'justify-center'} items-center`} >
                         <div className='w-[35px] h-[35px] relative'>
                             <Image
                                 src={profilePicture ? profilePicture : '/profile-circle.svg'}
@@ -206,12 +214,12 @@ const RightNavbar = () => {
                                 className='rounded-full bg-black object-cover overflow-hidden'
                             />
                         </div>
-                        {!isNotification && <h3 className='font-light text-md '>Profile</h3>}
+                        {!isNotification && <h3 className='font-bold text-lg hidden xl:flex'>Profile</h3>}
                     </div>
                 </Link>
             </div>
-            <div className='w-full h-[100px] p-2 border-t-[1px] border-gray-300 dark:border-t-neutral-800 flex justify-start flex-col items-start cursor-pointer'>
-                <div className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200  transition-all rounded-md flex ${!isNotification ? 'justify-start' : 'justify-center'} items-start`} onClick={handleSettingModel}>
+            <div className='w-full h-[100px] p-2 px-6 border-t-[1px] border-gray-300 dark:border-t-neutral-500 flex justify-start flex-col items-start cursor-pointer'>
+                <div className={`w-full p-3 dark:hover:bg-neutral-900 hover:bg-gray-200  transition-all rounded-md flex ${!isNotification ? 'xl:justify-start justify-center' : 'justify-center'} items-center`} onClick={handleSettingModel}>
                     {themeMode === 'dark' ? (
                         <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                             <title>bar</title>
@@ -236,7 +244,7 @@ const RightNavbar = () => {
                     )
                     }
                     {!isNotification &&
-                        <h3 className='ml-2 '>More</h3>
+                        <h3 className='ml-2 hidden font-bold text-lg xl:flex'>More</h3>
                     }
                 </div>
             </div>

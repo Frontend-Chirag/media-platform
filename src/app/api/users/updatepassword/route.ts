@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: NextRequest) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+     await  ConnectedToDatabase();
 
         // Parse the request body as JSON
         const reqBody = await request.json();
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Decode the forgotPasswordToken
-        const decodedToken = jwt.verify(forgotPasswordToken, process.env.FORGOT_PASSWORD_SECRET!) as jwt.JwtPayload;
+        const decodedToken = jwt.verify(forgotPasswordToken,  process.env.FORGOT_PASSWORD_SECRET!) as jwt.JwtPayload;
 
         // Update the user's password
         const user = await User.findByIdAndUpdate(

@@ -1,5 +1,5 @@
+import { FriendRequestStatus } from '@/types/type';
 import { create } from 'zustand';
-import { FriendRequest } from './useUser';
 
 
 interface NotificationData {
@@ -21,7 +21,7 @@ interface SenderUserData {
     followers: string[];
     following: string[];
     isPrivate: boolean;
-    friendRequests: FriendRequest[];
+    friendRequests: FriendRequestStatus[];
 }
 
 interface SendNotification {

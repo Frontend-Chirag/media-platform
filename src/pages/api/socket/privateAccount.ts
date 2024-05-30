@@ -1,6 +1,7 @@
 import { User } from '@/Schemas/userSchema';
 import { NextApiRequest } from 'next';
 import { NextApiResponseServerIo } from '@/types';
+import { pusherServer } from '@/utils/pusher';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
     try {
@@ -25,10 +26,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         await user.save();
 
         // Emit a 'switchAccount' event to the user's socket room
-        res?.socket?.server?.io?.to(`${user._id}`).emit('switchAccount', user);
+        await pusherServer.trigger(`${user._id}`, 'isPrivate', { isPrivate: user.isPrivate })
+        // res?.socket?.server?.io?.to(`${user._id}`).emit('switchAccount', user);
 
         // Return a success message with a 200 status code
-        return res.status(200).json({ message: 'Switch Account successfully' });
+        return res.status(200).json({isPrivate: user.isPrivate, message: 'Switch Account successfully' });
     } catch (error) {
         console.log(error);
         // Return a 500 status code for internal server error with a message

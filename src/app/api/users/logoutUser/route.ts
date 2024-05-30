@@ -1,15 +1,18 @@
 import { ConnectedToDatabase } from "@/DB/databaseConnection"
 import { User } from "@/Schemas/userSchema";
-import { getUserByCookies } from "@/utils/getUserByCookies";
+import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+      await  ConnectedToDatabase();
 
         // Get user ID from cookies
-        const userId = await getUserByCookies(request);
+        const token = request.cookies.get('accessToken')?.value || '';
+        const decordedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as jwt.JwtPayload;
+
+        const userId = decordedToken?._id;
 
         // If user ID is not found, return a 401 status code
         if (!userId) {

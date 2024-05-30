@@ -9,6 +9,7 @@ import { useSocket } from '@/contexts/socket-provider';
 import { usePrivacyModel } from '@/libs/usePrivacyModel';
 import { useSettingModel } from '@/libs/useSettingModel';
 import { useUser } from '@/libs/useUser';
+import { pusherClient } from '@/utils/pusher';
 
 const PrivacyModel = () => {
 
@@ -35,32 +36,18 @@ const PrivacyModel = () => {
 
     }, [user, toggle, toggleSwitch]);
 
-    useEffect(() => {
-        // Check if socket is not null before calling socket.on
-        if (!socket) return;
-
-        socket.on('connect', () => {
-
-            socket.on('switchAccount', (data: any) => {
-                console.log('updatedUser', data)
-                setUser(data);
-                console.log("specific user updated")
-
-            });
-        })
-
-        return () => {
-            socket.off('switchAccount');
-
-        };
-    }, [socket, user]);
 
 
     const handleSwitch = async () => {
         try {
             setIsLoading(true)
 
-            await axios.post('/api/socket/privateAccount', { id: user?._id });
+            const res = await axios.post('/api/socket/privateAccount', { id: user?._id });
+
+            setUser((prev) => ({
+                ...prev,
+                isPrivate: res?.data?.isPrivate
+            }))
 
             setIsLoading(false)
             setToggleSwitch(false)

@@ -1,6 +1,7 @@
 import { NextApiRequest } from 'next';
 import { NextApiResponseServerIo } from '@/types';
 import { User } from '@/Schemas/userSchema';
+import { Notification } from '@/Schemas/notificationSchema';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
     try {
@@ -9,6 +10,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
         // Extract senderId and receiverId from the request body
         const { senderId, receiverId } = reqBody;
+
+        await Notification.create({
+            userTo: receiverId,
+            userFrom: senderId,
+            entityId: senderId,
+            notificationType: 'following',
+            notificationMessage: 'has started following you',
+        });
 
         // Update receiver user by adding senderId to their following list
         const updatedReceiverUser = await User.findOneAndUpdate(
@@ -37,6 +46,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         if (!updatedSenderUser) {
             return res.status(401).json({ message: 'SenderUser not found' });
         }
+
+        res?.socket?.server?.io?.to(`${updatedSenderUser._id}`)?.emit('sendFollowRequestNotification', {
+            newNotification: true,
+        });
 
         // Emit 'updatedFollowers' and 'updatedFollowing' events to update follower and following counts
         res?.socket?.server?.io?.to(`${updatedReceiverUser._id}`)?.emit("updatedFollowers", updatedSenderUser);

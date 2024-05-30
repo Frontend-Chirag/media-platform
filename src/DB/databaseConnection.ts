@@ -1,19 +1,31 @@
 import { NextResponse } from 'next/server';
 import mongoose from "mongoose";
-import { DB_NAME } from '@/constant/index'
 
-export async function ConnectedToDatabase() {
+type ConnectionObject = {
+  isConnected?: number;
+}
+
+const connection: ConnectionObject = {};
+
+export const DB_NAME = 'socialMediaDB';
+
+export async function ConnectedToDatabase(): Promise<void> {
+
+    if(connection.isConnected){
+        console.log('Already connected to database');
+        return 
+    }
+
     try {
+        const db = await mongoose.connect(`${process.env.MONGODB_URI!}/socialMediaDB`);
+ 
+        connection.isConnected = db.connections[0].readyState;
 
-        const connection = await mongoose.connect(`${process.env.MONGODB_URI!}/${DB_NAME}`)
-
-        if (connection) {
-            console.log(`Connected to database ${DB_NAME}`);
-        }
-
+        console.log('DB connected successfully')
 
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ message: 'Error connecting to database' }, { status: 500 })
+        console.log("Database connection Failed",error);
+
+        process.exit(1);
     }
 }

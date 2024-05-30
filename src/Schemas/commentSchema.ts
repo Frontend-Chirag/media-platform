@@ -2,30 +2,42 @@ import mongoose from 'mongoose';
 
 
 const commentSchema = new mongoose.Schema({
-    content: {
-        type: String,
-    },
-    user: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        required: true,
     },
-    post: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post',
+    media: [{
+        url: String,
+        mediaType: String,
+    }],
+    caption: {
+        type: String,
     },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'User'
     }],
-    replies: [{
+    savePosts: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'comment',
+        ref: 'User'
     }],
-    isDeleted:{
+    reposts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment'
+    }],
+    commenting: {
         type: Boolean,
-        default: false,
+        default: false
     },
-    
+    HideViewAndLike: {
+        type: Boolean,
+        default: false
+    },
 
 }, { timestamps: true });
 

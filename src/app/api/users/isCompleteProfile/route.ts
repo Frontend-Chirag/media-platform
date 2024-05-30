@@ -1,15 +1,17 @@
 import { ConnectedToDatabase } from '@/DB/databaseConnection';
 import { User } from '@/Schemas/userSchema';
-import { getUserByCookies } from '@/utils/getUserByCookies';
+import jwt from 'jsonwebtoken';
 import { NextResponse, NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
+import { getUserByCookies } from '@/utils/getUserByCookies';
 
 export async function GET(request: NextRequest) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+       await ConnectedToDatabase();
 
         // Get user ID from cookies
-        const userId = await getUserByCookies(request);
+        const userId =  await getUserByCookies(request);
 
         // If user ID is not found, return a 401 status code
         if (!userId) {
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
 
         // Check if the user profile is complete
         const isProfileComplete = user.name !== '' && user.username !== ''
-            && user.email !== '' && user.bio !== '' 
+            && user.email !== '' && user.bio !== ''
             && user.gender !== '';
 
         // Return appropriate response based on profile completeness

@@ -5,7 +5,7 @@ import { User } from '@/Schemas/userSchema';
 export async function GET(request: NextRequest) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+       await ConnectedToDatabase();
 
         // Retrieve all users from the database, excluding sensitive information
         const usersCollection = await User.find({}).select('-password -refreshToken').exec();

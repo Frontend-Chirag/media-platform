@@ -1,13 +1,12 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { ConnectedToDatabase } from '@/DB/databaseConnection';
 import { User } from '@/Schemas/userSchema';
-import toast from 'react-hot-toast';
 import { sendMail } from '@/utils/mailer';
 
 export async function POST(request: NextRequest) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+       await ConnectedToDatabase();
 
         // Parse the request body as JSON
         const reqBody = await request.json();
@@ -20,11 +19,16 @@ export async function POST(request: NextRequest) {
 
         // If user is not found, show an error toast message
         if (!user) {
-            return toast.error('User not found');
+            return NextResponse.json({message: 'user not found'}, {status: 401})
         }
 
         // Generate a forgot password token for the user
-        const forgotPasswordToken = user.generateForgotPasswordToken();
+        const forgotPasswordToken = await user.generateForgotPasswordToken();
+
+        if(!forgotPasswordToken){
+            throw new Error;
+        }
+        console.log('forgotPasswordToken')
 
         // Send a reset password email to the user
         await sendMail({

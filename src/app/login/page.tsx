@@ -76,17 +76,18 @@ const Login = () => {
         <div className='w-full h-full'>
             <AuthModel
                 link='/signup'
-                linkText='Don’t have an account ?'
+                linkText='Need an account ?'
                 linkTextTwo='Sign up'
                 isLoading={isLoading}
 
             >
-                <h1 className='auth_right-container-text font-semibold '><span className='text-[#2f8bfc]'>Log</span> in to your <span className='text-[#2f8bfc]'>account</span> </h1>
-                <form onSubmit={form.handleSubmit(onSubmit)} className='w-full h-full px-6  ' >
+                <h1 className='mb-2 mt-4 text-xl text-white font-semibold'>Welcome back!</h1>
+                <h1 className='mb-8 text-lg text-neutral-400 font-semibold'>We're so excited to see you again!</h1>
+                <form onSubmit={form.handleSubmit(onSubmit)} className='w-full h-auto flex flex-col justify-center items-center px-4 ' >
 
                     <AuthInputContainer>
                         <label htmlFor='email' className='text-sm w-full font-bold flex justify-between items-center'>
-                            <span className='flex gap-1 justify-center items-center'>
+                            <span className='flex gap-1 justify-center items-center text-neutral-400'>
                                 <MdEmail />
                                 Email Address
                             </span>
@@ -101,7 +102,7 @@ const Login = () => {
 
                     <AuthInputContainer>
                         <label htmlFor='password' className='text-sm w-full font-bold flex justify-between items-center'>
-                            <span className='flex gap-1 justify-center items-center'>
+                            <span className='flex gap-1 justify-center items-center text-neutral-400'>
                                 <RiLockPasswordFill />
                                 Password
                             </span>
@@ -119,14 +120,14 @@ const Login = () => {
                         </div>
                     </AuthInputContainer>
 
-                    <div className='w-full flex flex-col justify-center items-center mt-2 '>
+                    <div className='w-full flex flex-col justify-center items-center mt-6 '>
                         <Button
                             type='submit'
                             defaultString='Log In'
                         />
                     </div>
-                    <Link href='/forgot-password' className='w-full mt-1 text-right p-2'>
-                        <h1 className='text-[#2f8bfc] font-semibold text-sm'>Forgot Password ?</h1>
+                    <Link href='/forgot-password' className='w-full mt-3 text-right p-2'>
+                        <h1 className='text-[#2f8bfc] font-semibold text-lg'>Forgot Password ?</h1>
                     </Link>
                 </form>
             </AuthModel>

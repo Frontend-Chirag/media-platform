@@ -1,3 +1,4 @@
+import { SetStateAction } from "react";
 
 export type SocketContextType = {
     socket: any | null;
@@ -25,6 +26,15 @@ export type IUserProps = {
     email: string;
     bio: string;
     profilePicture: string;
+    backgroundImage: string;
+    profession: string;
+    location: string;
+    link: string;
+    dob: {
+        date: string,
+        month: string,
+        year: string
+    };
     gender: string;
     followers: string[];
     following: string[];
@@ -72,7 +82,7 @@ export type SendNotification = {
 }
 
 export type IUsersContainerProps = {
-    receiverId: string;
+    receiverId: string | undefined;
     senderId: string | undefined;
     username: string;
     profilePicture: string;
@@ -89,16 +99,47 @@ export type IFollowButton = {
     followers: string[] | string | undefined;
     following: string[] | string | undefined;
     isPrivate: boolean;
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<SetStateAction<boolean>>;
+    isRequested: boolean;
+    setIsRequested: React.Dispatch<SetStateAction<boolean>>;
+    isFollowers: boolean;
+    setIsFollowers: React.Dispatch<SetStateAction<boolean>>;
+    isFollowing: boolean;
+    setIsFollowing: React.Dispatch<SetStateAction<boolean>>;
+}
 
+export type IFollowButtonSuggestion = {
+    receiverId: string | undefined;
+    senderId: string | undefined;
+    friendRequests: FriendRequestStatus[];
+    followers: string[];
+    following: string[];
+    isPrivate: boolean;
+}
+
+export type INotificationFollowRequestButtonProps = {
+    receiverId: string | undefined;
+    senderId: string;
+    friendRequests: FriendRequestStatus[];
+    followers: string[] | string | undefined;
+    following: string[] | string | undefined;
+    isPrivate: boolean;
 }
 
 export type IConfirmRequestProps = {
     friendRequests: FriendRequestStatus[];
-    receiverId: string[] | string;
+    receiverId: string | undefined;
     senderId: string;
-    notification: 'notify' | 'profile';
-    isSenderConfirmOrRejected: Boolean;
-    setIsSenderConfirmOrRejected: (isSenderConfirmOrRejected: Boolean) => void
 };
 
+
+export interface Song {
+    id: string;
+    user_id: string;
+    author: string;
+    title: string;
+    song_path: string;
+    image_path: string;
+}
 

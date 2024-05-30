@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { string } from "zod";
+
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -35,6 +37,36 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
+    backgroundImage: {
+        type: String,
+        default: ''
+    },
+    profession: {
+        type: String,
+        default: ''
+    },
+    location: {
+        type: String,
+        default: ''
+    },
+    link: {
+        type: String,
+        default: ''
+    },
+    dob: {
+        date: {
+            type: String,
+            default: ''
+        },
+        month: {
+            type: String,
+            default: ''
+        },
+        year: {
+            type: String,
+            default: ''
+        },
+    },
     gender: {
         type: String,
     },
@@ -61,12 +93,23 @@ const userSchema = new mongoose.Schema({
         }
     }],
     posts: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post'
+        postId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Post',
+        },
+        isRepost: Boolean,
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
     }],
     savedPosts: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
+    }],
+    searchHistory: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }],
     likedPosts: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -80,9 +123,13 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Notifcation',
     }],
-    messages: [{
+    seenMessageIds: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Message',
+        ref: 'Message'
+    }],
+    conversationIds: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Conversation'
     }],
     blockedUsers: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -110,6 +157,28 @@ const userSchema = new mongoose.Schema({
     forgotPasswordToken: String,
     verifyEmailToken: String,
 });
+
+// virtual for conversations relationship
+userSchema.virtual('conversations', {
+    ref: 'Conversation',
+    localField: 'conversationIds',
+    foreignField: '_id',
+    justOne: false
+});
+
+// virtual for seenMessages relationShip
+userSchema.virtual('seenMessages', {
+    ref: 'Message',
+    localField: 'seenMessageIds',
+    foreignField: '_id',
+    justOne: false
+});
+
+// set viturals to be included in toObject and toJSON
+userSchema.set('toObject', { virtuals: true })
+userSchema.set('toJSON', { virtuals: true })
+
+
 
 // password encryption 
 userSchema.pre('save', async function (next) {
@@ -155,11 +224,12 @@ userSchema.methods.generateRefreshToken = function () {
 
 // generate forgot password token
 userSchema.methods.generateForgotPasswordToken = function () {
+
     return jwt.sign(
         {
             _id: this._id
         },
-        process.env.FORGOT_PASSWORD_SECRECT!,
+        process.env.FORGOT_PASSWORD_SECRET!,
         {
             expiresIn: process.env.FORGOT_PASSWORD_EXPIRY!
         }

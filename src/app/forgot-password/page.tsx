@@ -68,12 +68,12 @@ const Forgotpassword = () => {
                         className='rounded-full object-cover'
                     />
                 </div>
-                <h1 className='auth_right-container-text font-semibold text-center'>Forgot <span className='text-[#2f8bfc]'>Password</span></h1>
-                <p className='font-semibold text-sm text-center'>Enter your <span className='text-[#2f8bfc]'>email</span> and we'll send you a <span className='text-[#2f8bfc]'>link to reset</span> your Password</p>
-                <form onSubmit={form.handleSubmit(onSubmit)} className='w-full h-full '>
+                <h1 className='auth_right-container-text font-semibold text-center text-white'>Forgot Password</h1>
+                <p className='font-semibold text-sm text-center text-neutral-400'>Enter your <span className='text-[#2f8bfc]'>email</span> and we'll send you a <span className='text-[#2f8bfc]'>link to reset</span> your Password</p>
+                <form onSubmit={form.handleSubmit(onSubmit)} className='w-full h-auto px-4 flex flex-col justify-center items-center'>
                     <AuthInputContainer >
                         <label htmlFor='email' className='text-sm w-full flex justify-between items-center'>
-                            <span className='flex gap-1 justify-center items-center'>
+                            <span className='flex gap-1 justify-center items-center text-neutral-400'>
                                 <MdEmail />
                                 Email
                             </span>

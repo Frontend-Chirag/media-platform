@@ -11,7 +11,6 @@ import { useAccessTokenModel } from '@/libs/useAccessTokenModel';
 
 const UserContext = createContext<IUserProps | null>(null);
 
-
 const UserProvider = ({ children }: { children: React.ReactNode; }) => {
 
     const pathname = usePathname();
@@ -23,11 +22,11 @@ const UserProvider = ({ children }: { children: React.ReactNode; }) => {
     const getCurrentUserInfo = async () => {
         try {
             const res = await axios.get('/api/users/getCurrentUserInfo');
-            console.log('tokenState', res.data.tokenState)
-
+            console.log('user response', res.data)
             setTokenState(res.data.tokenState)
 
-            if (res.data.user) {
+
+            if (res.data?.user) {
                 setUser(res.data.user);
             }
         } catch (error) {

@@ -1,8 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { createRouter } from 'next-connect';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
 
 
 export function middleware(request: NextRequest) {

@@ -10,6 +10,8 @@ import { IoIosArrowForward, IoMdSunny } from 'react-icons/io';
 import { useUser } from '@/libs/useUser';
 import { useTheme } from '@/contexts/themeProvider';
 import { FaAngleLeft, FaMoon } from 'react-icons/fa';
+import { BsSave } from 'react-icons/bs';
+import Link from 'next/link';
 
 const SettingModel = () => {
 
@@ -57,12 +59,12 @@ const SettingModel = () => {
         }
     }
 
-
     return (
-        <div className={`  ${appreance ? 'h-auto w-[250px]' : 'h-[300px] w-auto'}
+        <div className={`  ${appreance ?  'h-auto w-[250px]' : 'h-[300px] w-auto'}
         dark:bg-neutral-900  dark:text-white
-        e text-[#000] dark:shadow-md dark:shadow-neutral-800 shadow-md shadow-gray-600 bg-[#fff]  z-[999]    ${isOpen ? 'fixed' : 'hidden'} bottom-[110px] left-[33px] rounded-md 
-        flex justify-start items-start flex-col gap-2 p-2  transition-all 
+        e text-[#000] dark:shadow-md dark:shadow-neutral-800 shadow-md shadow-gray-600 bg-[#fff]  z-[999]    
+        ${isOpen ? 'fixed' : 'hidden'} bottom-[110px] left-[33px] rounded-md 
+         flex justify-start items-start flex-col gap-2 p-2  transition-all 
         `}>
             <div className={`${appreance ? 'hidden' : 'flex'} w-full h-11 flex justify-center items-center border-b-[1px] border-b-neutral-500 mb-4`}>
                 <h1>Settings</h1>
@@ -79,8 +81,8 @@ const SettingModel = () => {
                             : <IoMdSunny className='text-yellow-500' />
                         }
                     </span>
-                </div> 
-                )}
+                </div>
+            )}
             <button
                 onClick={handleLogout}
                 className={`dark:hover:bg-black hover:bg-gray-200 w-full flex justify-start items-center px-4 py-2  rounded-lg border-none outline-none ${appreance ? 'hidden' : 'flex'}`}
@@ -102,6 +104,10 @@ const SettingModel = () => {
                     : <IoMdSunny className='text-yellow-500' />
                 } Switch Appreance
             </button>
+            <Link href={'/bookmarks'} className={` ${appreance ? 'hidden' : 'flex'} dark:hover:bg-black hover:bg-gray-200 w-full  flex justify-start items-center  gap-2 px-4 py-2 rounded-lg border-none outline-none`}>
+                <BsSave />
+                Bookmarks
+            </Link>
 
             {appreance &&
                 (

@@ -1,36 +1,67 @@
 import mongoose from 'mongoose';
 
 const postSchema = new mongoose.Schema({
-    content: {
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    media: [{
+        url: String,
+        mediaType: String,
+        tags: [{
+            taggedUserId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+            username: String,
+            positionX: Number,
+            positionY: Number,
+        }]
+    }],
+    audio: {
+        url: String,
+        title: String,
+        artist: String,
+        startTime: Number,
+        endTime: Number
+    },
+    caption: {
         type: String,
     },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    comments: [{
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            red: 'User'
-        },
-        commentId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comment'
-        }
-    }],
-    isDeteted: {
-        type: Boolean,
-        default: false,
-    },
-    user: {
+    savePosts: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'User'
+    }],
+    reposts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    }],
+    parentPosts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    }],
+    commenting: {
+        type: Boolean,
+        default: false
     },
-    images: [{
-        url: {
-            type: String
-        }
-    }]
+    HideViewAndLike: {
+        type: Boolean,
+        default: false
+    },
+    isPinned: {
+        type: Boolean,
+        default: false
+    },
+
 }, { timestamps: true });
 
 

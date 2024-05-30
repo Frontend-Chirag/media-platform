@@ -5,7 +5,7 @@ import { ConnectedToDatabase } from "@/DB/databaseConnection";
 export async function POST(request: NextRequest) {
     try {
         // Connect to the database
-        ConnectedToDatabase();
+      await ConnectedToDatabase();
 
         // Get the referer header from the request
         const referer = request.headers.get('referer');

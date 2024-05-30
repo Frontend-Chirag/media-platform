@@ -84,10 +84,10 @@ const UpdatePassword = () => {
             className='object-cover rounded-full shadow-xl'
           />
         </div>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full h-full px-6 '>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='w-full mt-2  h-auto px-4 flex flex-col justify-center items-center '>
           <AuthInputContainer >
             <label htmlFor='password' className='text-sm w-full flex font-bold justify-between items-center' >
-              <span className='flex gap-1 justify-center items-center'>
+              <span className='flex gap-1 justify-center items-center text-neutral-400'>
                 <RiLockPasswordFill />
                 Password
               </span>
@@ -102,7 +102,7 @@ const UpdatePassword = () => {
 
           <AuthInputContainer >
             <label htmlFor='confirmPassword' className='text-sm w-full font-bold flex justify-between items-center' >
-              <span className='flex gap-1 justify-center items-center'>
+              <span className='flex gap-1 justify-center items-center text-neutral-400'>
                 <FaUserLock />
                 Confirm Password
               </span>

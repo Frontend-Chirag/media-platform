@@ -87,11 +87,11 @@ function SignUp() {
                 linkTextTwo='Log in'
                 isLoading={isLoading}
             >
-                <h1 className='auth_right-container-text font-semibold text-center '>Sign <span className='text-[#2f8bfc]'>up</span></h1>
-                <form onSubmit={form.handleSubmit(onSubmit)} className='w-full h-full px-6 '  >
+                <h1 className='mb-2 mt-4 text-xl text-white font-semibold'>Create an account</h1>
+                <form onSubmit={form.handleSubmit(onSubmit)} className='w-full h-auto px-4 flex flex-col justify-center items-center '  >
                     <AuthInputContainer>
                         <label htmlFor='name' className='text-sm w-full font-bold flex justify-between items-center' >
-                            <span className='flex gap-1 justify-center items-center'>
+                            <span className='flex gap-1 justify-center items-center text-neutral-400'>
                                 <FaRegUserCircle />
                                 Name
                             </span>
@@ -106,7 +106,7 @@ function SignUp() {
 
                     <AuthInputContainer>
                         <label htmlFor='username' className='text-sm w-full font-bold flex justify-between items-center'>
-                            <span className='flex gap-1 justify-center items-center'>
+                            <span className='flex gap-1 justify-center items-center text-neutral-400'>
                                 <FaUser />
                                 Username
                             </span>
@@ -121,7 +121,7 @@ function SignUp() {
 
                     <AuthInputContainer>
                         <label htmlFor='email' className='text-sm w-full flex font-bold justify-between items-center'>
-                            <span className='flex gap-1 justify-center items-center'>
+                            <span className='flex gap-1 justify-center items-center text-neutral-400'>
                                 <MdEmail />
                                 Email
                             </span>
@@ -136,7 +136,7 @@ function SignUp() {
 
                     <AuthInputContainer >
                         <label htmlFor='password' className='text-sm w-full flex font-bold justify-between items-center'>
-                            <span className='flex gap-1 justify-center items-center'>
+                            <span className='flex gap-1 justify-center items-center text-neutral-400'>
                                 <RiLockPasswordFill />
                                 Password
                             </span>

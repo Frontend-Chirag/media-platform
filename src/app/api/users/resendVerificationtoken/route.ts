@@ -1,9 +1,11 @@
+import { ConnectedToDatabase } from "@/DB/databaseConnection";
 import { User } from "@/Schemas/userSchema";
 import { sendMail } from "@/utils/mailer";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     try {
+        await ConnectedToDatabase();
         // Parse the request body as JSON
         const reqBody = await request.json();
         const { email } = reqBody;
