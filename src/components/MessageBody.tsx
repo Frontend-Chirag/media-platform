@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import MessageBox from './MessageBox';
 import { pusherClient } from '@/utils/pusher';
 import { find } from 'lodash';
+import { useUser } from '@/libs/useUser';
 
 
 export interface IUseFullMessageType {
@@ -35,6 +36,7 @@ const MessageBody = ({ id }: { id: string }) => {
     const [intialMessages, setIntialMessages] = useState<IUseFullMessageType[]>([]);
     const bottomRef = useRef<HTMLDivElement>(null);
 
+    const { user } = useUser();
 
     const getMessages = async () => {
         await axios.get('/api/users/getMessages', { params: { conversationId: id } })
@@ -42,6 +44,14 @@ const MessageBody = ({ id }: { id: string }) => {
                 setIntialMessages(data?.data)
             })
     }
+
+    const seen = async () => {
+        await axios.post(`/api/users/conversations/${id}/seen`, { currentUserId: user?._id })
+    }
+
+    useEffect(() => {
+        seen();
+    }, [id])
 
     useEffect(() => {
         getMessages()
@@ -52,6 +62,7 @@ const MessageBody = ({ id }: { id: string }) => {
         bottomRef.current?.scrollIntoView();
 
         const messageHandlers = (message: IUseFullMessageType) => {
+            seen();
             setIntialMessages((current) => {
                 if (find(current, { _id: message._id })) {
                     return current
@@ -64,6 +75,7 @@ const MessageBody = ({ id }: { id: string }) => {
         }
 
         const updateMessageHandler = (newMessage: IUseFullMessageType) => {
+
             setIntialMessages((current) => current.map((currentMessage) => {
                 if (currentMessage._id === newMessage._id) {
                     return newMessage

@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { IUseFullMessageType } from './MessageBody';
 import { format } from 'date-fns';
 import ConversationBox from './ConversationBox';
+import { pusherClient } from '@/utils/pusher';
 
 export interface IUseConversationUserList {
     _id: string
@@ -30,16 +31,55 @@ export interface IUseConversationUserList {
 const ConversationsUser = () => {
 
     const { user } = useUser();
-    const { data: res } = getConversationsUser(user?._id!);
+
     const [conversationsUserList, setConversationUserList] = useState<IUseConversationUserList[]>([]);
 
-    useEffect(() => {
-        if (res?.data) {
-            console.log('ConversationListUser', res?.data)
-            setConversationUserList(res?.data)
-        }
-    }, [res?.data]);
+    const fetchCurrentUserConversationList = async () => {
+        try {
 
+            const res = await axios.get('/api/users/getAllConversationsList', { params: { currentUserId: user?._id } });
+           
+            setConversationUserList(res?.data)
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchCurrentUserConversationList()
+    }, [user?._id]);
+
+
+    useEffect(() => {
+
+        if (!user?._id) {
+            return;
+        };
+
+        pusherClient.subscribe(`${user?._id}`);
+
+        const updatehandler = (conversation: IUseConversationUserList) => {
+            setConversationUserList((current) => current.map((currentConversation) => {
+                if(currentConversation._id === conversation._id){
+                     console.log('working')
+                    return {
+                        ...currentConversation,
+                        message: conversation.message
+                    }
+                 }
+
+                 return currentConversation;
+            }))
+        }
+
+        pusherClient.bind('conversation:update', updatehandler);
+
+        return () => {
+            pusherClient.unsubscribe(`${user?._id}`);
+            pusherClient.unbind('conversation:update', updatehandler)
+        }
+    }, [user?._id])
 
     return (
         <div className='w-full h-auto '>

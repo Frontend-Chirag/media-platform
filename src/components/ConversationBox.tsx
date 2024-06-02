@@ -80,7 +80,7 @@ const ConversationBox: React.FC<IUseConversationBox> = ({ data }) => {
                         format(new Date(lastMessage?.createdAt), 'p')
                     }
                 </div>
-                <p className={`truncate fontsfamily font-semibold text-[14px] mt-2 ml-4 ${hasSeen ? 'dark:text-neutral-500 text-gray-500' : 'dark:text-neutral-300 text-gray-400'}`}>{lastMessageText}</p>
+                <p className={`truncate fontsfamily text-[14px] mt-[8px] ml-4 ${hasSeen ? 'text-neutral-500' : 'text-white font-medium'}`}>{lastMessageText}</p>
             </div>
         </div>
     )

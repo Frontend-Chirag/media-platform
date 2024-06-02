@@ -51,15 +51,15 @@ export async function POST(req: NextRequest) {
 
         await pusherServer.trigger(conversationId, 'message:new', getMessage);
 
-        // const lastMessage = updatedConversation.message[updatedConversation.message.length - 1];
+        const lastMessage = updatedConversation.message[updatedConversation.message.length - 1];
 
-        // updatedConversation.users.map((user: any) => {
-        //     pusherServer.trigger(user._id, 'conversation-update', {
-        //         id: conversationId,
-        //         message: [lastMessage]
-        //     })
-        // });
-
+        updatedConversation.users.map((user: any) => {
+            console.log('user', user._id)
+            pusherServer.trigger(user._id.toString(), 'conversation:update', {
+                _id: conversationId,
+                message: [lastMessage]
+            })
+        });
 
         return NextResponse.json(getMessage)
 
